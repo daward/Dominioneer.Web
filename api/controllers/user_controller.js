@@ -1,17 +1,8 @@
 'use strict';
 var Dominioneer = require('dominioneer');
+var historyBuilder = new Dominioneer.HistoryBuilder();
 
-var histories = []
-
-var seed = new Dominioneer.GameBuilder();
-histories['Dana'] = new Dominioneer.History()
-histories['Dana'].play(seed.createGame(), 1)
-histories['Dana'].play(seed.createGame(), 0)
-histories['Dana'].play(seed.createGame(), 0)
-histories['Dana'].play(seed.createGame(), 1)
-histories['Dana'].play(seed.createGame(), 1)
-
-
+historyBuilder.setupDb();
 /*
  'use strict' is not required but helpful for turning syntactical errors into true errors in the program flow
  http://www.w3schools.com/js/js_strict.asp
@@ -54,20 +45,16 @@ function rate(req, res)
 	var gameId = req.swagger.params.gameId.value;
 	var rating = req.swagger.params.rating.value;
 	
-	var history = histories[id]
-	if(!history)
+	historyBuilder.get(id, function(history)
 	{
-		var history = new Dominioneer.History();
-		histories[id] = history;
-	}
-	
-	history.play(gameId, rating);
-	
-	var retVal = new Object();
-	retVal["gameId"] = gameId;
-	retVal["userId"] = id;
-	retVal["rating"] = rating;
-	res.send(retVal);	
+		history.play(gameId, rating)
+		
+		var retVal = new Object();
+		retVal["gameId"] = gameId;
+		retVal["userId"] = id;
+		retVal["rating"] = rating;
+		res.send(retVal);	
+	});
 }
 
 function predict(req, res) 
@@ -75,17 +62,12 @@ function predict(req, res)
 	var id = req.swagger.params.userId.value;
 	var gameId = req.swagger.params.gameId.value;
 	
-	var history = histories[id];
-	if(!history)
-	{
-		res.status(404).send('The user does not exist')
-	}
-	else
+	historyBuilder.get(id, function(history)
 	{
 		var retVal = new Object();
 		retVal["gameId"] = gameId;
 		retVal["userId"] = id;
 		retVal["rating"] = history.predict(gameId);
 		res.send(retVal);
-	}
+	});
 }
