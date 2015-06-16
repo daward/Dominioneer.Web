@@ -1,6 +1,10 @@
 'use strict';
 var Dominioneer = require('dominioneer');
-var historyBuilder = new Dominioneer.HistoryBuilder();
+var AWS = require('aws-sdk');
+
+AWS.config.region = 'us-west-1';
+var database = new AWS.DynamoDB({ endpoint: new AWS.Endpoint('http://localhost:8000') });
+var historyBuilder = new Dominioneer.HistoryBuilder(database);
 
 historyBuilder.setupDb();
 /*
