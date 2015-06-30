@@ -2,8 +2,8 @@
 var Dominioneer = require('dominioneer');
 var AWS = require('aws-sdk');
 
-AWS.config.region = 'us-west-1';
-var database = new AWS.DynamoDB({ endpoint: new AWS.Endpoint('http://localhost:8000') });
+AWS.config.region = 'us-west-2';
+var database = new AWS.DynamoDB();
 var historyBuilder = new Dominioneer.HistoryBuilder(database);
 
 historyBuilder.setupDb();
@@ -68,10 +68,12 @@ function predict(req, res)
 	
 	historyBuilder.get(id, function(history)
 	{
-		var retVal = new Object();
-		retVal["gameId"] = gameId;
-		retVal["userId"] = id;
-		retVal["rating"] = history.predict(gameId);
-		res.send(retVal);
+		history.predict(gameId, function (rating) {
+			var retVal = new Object();
+			retVal["gameId"] = gameId;
+			retVal["userId"] = id;
+			retVal["rating"] = rating;
+			res.send(retVal);
+		});
 	});
 }

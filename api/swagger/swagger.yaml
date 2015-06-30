@@ -24,11 +24,6 @@ paths:
       description: Gets a game for the given specifications
       operationId: generateGame
       parameters:
-        - name: method
-          in: query
-          description: the way to generate a game (random, optimized)
-          required: false
-          type: string
         - name: cards
           in: query
           description: the cards that are required to be in the chosen game
