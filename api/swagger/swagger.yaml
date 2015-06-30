@@ -3,7 +3,7 @@ info:
   version: "0.0.1"
   title: Dominioneer
 # during dev, should point to your local machine
-host: localhost:3000
+host: localhost:80
 # basePath prefixes all resource paths 
 basePath: /
 # 

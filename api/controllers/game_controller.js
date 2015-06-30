@@ -40,10 +40,10 @@ module.exports = {
 function getGame(req, res) {
   // variables defined in the Swagger document can be referenced using req.swagger.params.{parameter_name}
   var id = req.swagger.params.id.value
-  
+  var deck = new Dominioneer.Deck(null);
   var retVal = new Object();
   retVal["id"] = id
-  retVal["cards"] = Dominioneer.deck.getCards(Dominioneer.Game.decode(id))
+  retVal["cards"] = deck.getCards(Dominioneer.Game.decode(id))
   
   res.send(retVal);
 }
@@ -51,11 +51,12 @@ function getGame(req, res) {
 function generateGame(req, res) 
 {
 	var builder = new Dominioneer.GameBuilder();
+	var deck = new Dominioneer.Deck(null);
 	var retVal = new Object();
 	if(req.swagger.params.cards.value) {
-		retVal["id"] = builder.createGame(function () { return builder.requiredCards(req.swagger.params.cards.value); })
+		retVal["id"] = builder.createGame(deck, req.swagger.params.cards.value)
 	} else {
-		retVal["id"] = builder.createGame()
+		retVal["id"] = builder.createGame(deck, [])
 	}
 	 
 	res.send(retVal)
