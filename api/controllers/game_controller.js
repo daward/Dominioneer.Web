@@ -51,13 +51,14 @@ function getGame(req, res) {
 function generateGame(req, res) 
 {
 	var builder = new Dominioneer.GameBuilder();
-	var deck = new Dominioneer.Deck(null);
+	var deck = new Dominioneer.Deck(req.swagger.params.sets.value);
 	var retVal = new Object();
 	if(req.swagger.params.cards.value) {
 		retVal["id"] = builder.createGame(deck, req.swagger.params.cards.value)
 	} else {
 		retVal["id"] = builder.createGame(deck, [])
 	}
+	retVal["cards"] = deck.getCards(Dominioneer.Game.decode(retVal["id"]))
 	 
 	res.send(retVal)
 }

@@ -38,6 +38,13 @@ paths:
           type: array
           items:
             type: string
+        - name: sets
+          in: query
+          description: the different dominion expansions that are available
+          required: false
+          type: array
+          items:
+            type: string
       responses:
         "200":
           description: successful operation
