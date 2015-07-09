@@ -2,8 +2,9 @@ swagger: "2.0"
 info:
   version: "0.0.1"
   title: Dominioneer
+
 # during dev, should point to your local machine
-host: dominioneer.elasticbeanstalk.com
+host: localhost
 # basePath prefixes all resource paths 
 basePath: /
 # 
@@ -17,6 +18,14 @@ consumes:
 # format of the responses to the client (Accepts)
 produces:
   - application/json
+securityDefinitions:
+  rating_auth:
+    type: oauth2
+    authorizationUrl: https://graph.facebook.com/oauth/authorize
+    flow: implicit
+    scopes:
+      public_profile: the user id for a rating
+  
 paths:
   /games:
     x-swagger-router-controller: game_controller
@@ -74,16 +83,12 @@ paths:
           schema:
             $ref: "#/definitions/Game"
             
-  /users/{userId}/games/{gameId}/ratings/{rating}:
+  /games/{gameId}/ratings/{rating}:
     x-swagger-router-controller: user_controller
     post:
       description: rates a game for a particular user
       operationId: addRating
       parameters:
-        - name: userId
-          in: path
-          type: string
-          description: the user id of a player
         - name: gameId
           in: path
           type: string
@@ -96,18 +101,17 @@ paths:
         "200":
           description: successful operation
           schema:
-            $ref: "#/definitions/Rating"
+            $ref: "#/definitions/Rating"      
+      security: 
+        - rating_auth:
+          - public_profile
           
-  /users/{userId}/games/{gameId}/prediction:
+  /games/{gameId}/prediction:
     x-swagger-router-controller: user_controller
     get:
       description: gets a prediction for how much a user will like a game (between 0 and 1)
       operationId: predict
       parameters:
-        - name: userId
-          in: path
-          type: string
-          description: the user id of a player
         - name: gameId
           in: path
           type: string
@@ -117,6 +121,9 @@ paths:
           description: a successful prediction has been made
           schema:
             $ref: "#/definitions/Rating"
+      security: 
+        - rating_auth:
+          - public_profile
 
 # complex objects have schema definitions
 definitions:

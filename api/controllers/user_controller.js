@@ -45,7 +45,7 @@ module.exports = {
  */
 function rate(req, res) 
 {	
-	var id = req.swagger.params.userId.value;
+	var id = req.user.profile.id;
 	var gameId = req.swagger.params.gameId.value;
 	var rating = req.swagger.params.rating.value;
 	
@@ -63,7 +63,7 @@ function rate(req, res)
 
 function predict(req, res) 
 {
-	var id = req.swagger.params.userId.value;
+	var id = req.user.profile.id;
 	var gameId = req.swagger.params.gameId.value;
 	
 	historyBuilder.get(id, function(history)
