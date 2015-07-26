@@ -1,5 +1,9 @@
 'use strict';
 var Dominioneer = require('dominioneer');
+var AWS = require('aws-sdk');
+
+AWS.config.region = 'us-west-2';
+var database = new AWS.DynamoDB();
 
 /*
  'use strict' is not required but helpful for turning syntactical errors into true errors in the program flow
@@ -42,6 +46,7 @@ function getGame(req, res) {
   var id = req.swagger.params.id.value
   var deck = new Dominioneer.Deck(null);
   var retVal = new Object();
+  
   retVal["id"] = id
   retVal["cards"] = deck.getCards(Dominioneer.Game.decode(id))
   
@@ -49,25 +54,36 @@ function getGame(req, res) {
 }
 
 function generateGame(req, res) 
-{
-	
+{	
 	var builder = new Dominioneer.GameBuilder();
 	var deck = new Dominioneer.Deck(req.swagger.params.sets.value);
 	var retVal = new Object();
-
+	var players = [];
+	var cards = []
+	
 	if(req.swagger.params.cards.value) {
-		try {
-			retVal["id"] = builder.createGame(deck, req.swagger.params.cards.value)
-		}
-		catch(err) {
-			retVal["message"] = err;
-			res.status(400).send(retVal);
-			return;
-		}
-	} else {
-		retVal["id"] = builder.createGame(deck, [])
+		cards = req.swagger.params.cards.value;
 	}
-	retVal["cards"] = deck.getCards(Dominioneer.Game.decode(retVal["id"]))
-	 
-	res.send(retVal)
+	
+	if(req.swagger.params.players.value) {
+		players = req.swagger.params.players.value;
+	}
+	
+	players.push(req.user.profile.id)
+	
+	try {
+		var historyBuilder = new Dominioneer.HistoryBuilder(database);
+		historyBuilder.getAll(players, function(histories) {
+			builder.createBestGame(deck, cards, 10, histories, function(game) {
+				retVal["id"] = game.game;
+				retVal["cards"] = deck.getCards(Dominioneer.Game.decode(retVal["id"]));
+				res.send(retVal)
+			});
+		});
+	}
+	catch(err) {
+		retVal["message"] = err;
+		res.status(400).send(retVal);
+		return;
+	}	
 }

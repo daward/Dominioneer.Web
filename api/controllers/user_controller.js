@@ -4,9 +4,7 @@ var AWS = require('aws-sdk');
 
 AWS.config.region = 'us-west-2';
 var database = new AWS.DynamoDB();
-var historyBuilder = new Dominioneer.HistoryBuilder(database);
 
-historyBuilder.setupDb();
 /*
  'use strict' is not required but helpful for turning syntactical errors into true errors in the program flow
  http://www.w3schools.com/js/js_strict.asp
@@ -49,6 +47,8 @@ function rate(req, res)
 	var gameId = req.swagger.params.gameId.value;
 	var rating = req.swagger.params.rating.value;
 	
+	var historyBuilder = new Dominioneer.HistoryBuilder(database);
+	
 	historyBuilder.get(id, function(history)
 	{
 		history.play(gameId, rating)
@@ -65,6 +65,7 @@ function predict(req, res)
 {
 	var id = req.user.profile.id;
 	var gameId = req.swagger.params.gameId.value;
+	var historyBuilder = new Dominioneer.HistoryBuilder(database);
 	
 	historyBuilder.get(id, function(history)
 	{

@@ -4,7 +4,7 @@ info:
   title: Dominioneer
 
 # during dev, should point to your local machine
-host: localhost
+host: dominioneer.elasticbeanstalk.com
 # basePath prefixes all resource paths 
 basePath: /
 # 
@@ -66,6 +66,9 @@ paths:
           description: game was requested with invalid parameters
           schema:
             $ref: "#/definitions/Error"
+      security: 
+        - rating_auth:
+          - public_profile
             
   /games/{id}:
     x-swagger-router-controller: game_controller
