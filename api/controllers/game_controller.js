@@ -32,8 +32,28 @@ var util = require('util');
  */
 module.exports = {
   getGame: getGame,
-  generateGame: generateGame
+  generateGame: generateGame,
+  randGame: randGame,
+  playGame: playGame,
 };
+
+function playGame(req, res) {
+	
+	var id = req.swagger.params.gameId.value,
+			 historyBuilder = new Dominioneer.HistoryBuilder(database);
+	
+	var retVal = new Object();
+	retVal["id"] = id;  
+	
+	historyBuilder.getAll(getPlayers(req), function(histories) {
+		for(var i = 0; i < histories.length; i++) {
+			histories[i].play(id);
+		}
+		
+		res.send(retVal);
+		return;
+	});
+}
 
 /*
   Functions in a127 controllers used for operations should take two parameters:
@@ -43,14 +63,29 @@ module.exports = {
  */
 function getGame(req, res) {
   // variables defined in the Swagger document can be referenced using req.swagger.params.{parameter_name}
-  var id = req.swagger.params.id.value
+  var id = req.swagger.params.gameId.value
   var deck = new Dominioneer.Deck(null);
   var retVal = new Object();
-  
   retVal["id"] = id
   retVal["cards"] = deck.getCards(Dominioneer.Game.decode(id))
   
   res.send(retVal);
+}
+
+function randGame(req, res) {
+	var builder = new Dominioneer.GameBuilder(),
+		deck = new Dominioneer.Deck(req.swagger.params.sets.value),
+		cards = [],
+		retVal = new Object();
+	
+	if(req.swagger.params.cards.value) {
+		cards = req.swagger.params.cards.value;
+	}
+	
+	retVal["id"] = builder.createGame(deck, cards);
+	retVal["cards"] = deck.getCards(Dominioneer.Game.decode(retVal["id"]));
+	
+	res.send(retVal);
 }
 
 function generateGame(req, res) 
@@ -58,25 +93,14 @@ function generateGame(req, res)
 	var builder = new Dominioneer.GameBuilder();
 	var deck = new Dominioneer.Deck(req.swagger.params.sets.value);
 	var retVal = new Object();
-	var players = [];
-	var cards = []
-	
-	if(req.swagger.params.cards.value) {
-		cards = req.swagger.params.cards.value;
-	}
-	
-	if(req.swagger.params.players.value) {
-		players = req.swagger.params.players.value;
-	}
-	
-	players.push(req.user.profile.id)
 	
 	try {
 		var historyBuilder = new Dominioneer.HistoryBuilder(database);
-		historyBuilder.getAll(players, function(histories) {
-			builder.createBestGame(deck, cards, 10, histories, function(game) {
+		historyBuilder.getAll(getPlayers(req), function(histories) {
+			builder.createBestGame(deck, [], 10, histories, function(game) {
 				retVal["id"] = game.game;
 				retVal["cards"] = deck.getCards(Dominioneer.Game.decode(retVal["id"]));
+				retVal["rating"] = game.ratingTotal;
 				res.send(retVal)
 			});
 		});
@@ -86,4 +110,16 @@ function generateGame(req, res)
 		res.status(400).send(retVal);
 		return;
 	}	
+}
+
+function getPlayers(req) {
+	var players = [];
+		
+	if(req.swagger.params.players.value) {
+		players = req.swagger.params.players.value;
+	}
+	
+	players.push(req.user.profile.id);
+	
+	return players;
 }

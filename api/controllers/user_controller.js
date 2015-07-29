@@ -31,35 +31,8 @@ var util = require('util');
   we specify that in the exports of this module that 'hello' maps to the function named 'hello'
  */
 module.exports = {
-  addRating: rate,
   predict: predict
 };
-
-/*
-  Functions in a127 controllers used for operations should take two parameters:
-
-  Param 1: a handle to the request object
-  Param 2: a handle to the response object
- */
-function rate(req, res) 
-{	
-	var id = req.user.profile.id;
-	var gameId = req.swagger.params.gameId.value;
-	var rating = req.swagger.params.rating.value;
-	
-	var historyBuilder = new Dominioneer.HistoryBuilder(database);
-	
-	historyBuilder.get(id, function(history)
-	{
-		history.play(gameId, rating)
-		
-		var retVal = new Object();
-		retVal["gameId"] = gameId;
-		retVal["userId"] = id;
-		retVal["rating"] = rating;
-		res.send(retVal);	
-	});
-}
 
 function predict(req, res) 
 {
