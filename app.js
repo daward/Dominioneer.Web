@@ -7,8 +7,10 @@ var SwaggerExpress = require('swagger-express-mw'),
 	BearerStrategy = require('passport-http-bearer').Strategy,
 	User = require('./user.js');
 
-var app = require('express')();
+var express = require('express');
+var app = express();
 module.exports = app; // for testing
+app.use(express.static('assets'));
 
 passport.use(new BearerStrategy(
   function(token, done) {

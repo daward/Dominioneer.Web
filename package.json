@@ -3,7 +3,8 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "start": "swagger project start"
+    "start": "swagger project start",
+    "build": "browserify --debug -t [reactify --es6] src/index.js > bundle.js"
   },
   "description": "New Swagger API Project",
   "keywords": [],
@@ -13,16 +14,33 @@
   "dependencies": {
     "aws-sdk": "^2.1.34",
     "dominioneer": "^1.0.0",
-    "express": "^4.12.3",
+    "express": "^4.13.4",
+    "lodash": "=3.10.1",
     "passport": "^0.2.2",
     "passport-facebook": "^2.0.0",
     "passport-http-bearer": "^1.0.1",
+    "react": "^0.14.0",
+    "react-bootstrap": "^0.29.4",
+    "react-dom": "^0.14.0",
+    "react-facebook-login": "^2.1.4",
+    "react-redux": "=4.0.0",
+    "react-router": "=1.0.0-rc3",
+    "redux": "=3.0.4",
+    "redux-thunk": "=1.0.0",
     "request": "^2.58.0",
     "swagger-express-mw": "0.0.x",
     "swagger-ui-middleware": "^1.0.0",
     "yamljs": "^0.2.3"
   },
   "devDependencies": {
+    "browserify": "=12.0.1",
+    "reactify": "=1.1.1",
+    "grunt-concurrent": "^2.2.1",
+    "grunt-contrib-watch": "^0.6.1",
+    "grunt-nodemon": "^0.4.0",
+    "grunt": "^0.4.5",
+    "grunt-browserify": "^4.0.0",
+    "grunt-react": "^0.12.2",
     "should": "^5.2.0",
     "supertest": "^0.15.0"
   }
